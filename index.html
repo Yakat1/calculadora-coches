@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Detallado Automotriz V3</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="theme-color" content="#38bdf8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DetailCalc">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-top">
+                <h1>Detail<span>Calc</span></h1>
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                    <button id="btn-install-pwa" class="btn-icon" style="display:none; background: linear-gradient(135deg,#38bdf8,#0ea5e9); color:#0f172a; font-weight:700;" title="Instalar como app">📲 Instalar App</button>
+                    <button id="btn-open-config" class="btn-icon" title="Configuración">⚙️ Ajustes</button>
+                </div>
+            </div>
+            <p>Cotizador Inteligente de Servicios de Detallado</p>
+        </header>
+
+        <main>
+            <div class="left-column">
+                <!-- 1. Vehiculo -->
+                <section class="card" id="vehicle-section">
+                    <h2>1. Selecciona el Tipo de Vehículo</h2>
+                    <div class="vehicle-grid" id="vehicleGrid">
+                        <!-- Generado por JS -->
+                    </div>
+                </section>
+
+                <!-- 2. Servicios -->
+                <section class="card" id="services-section">
+                    <div class="section-header">
+                        <h2>2. Selecciona los Servicios Base</h2>
+                        <button id="btn-add-service" class="btn-small btn-accent">＋ Crear Servicio</button>
+                    </div>
+                    <div class="services-list" id="servicesList">
+                        <!-- Generado por JS -->
+                    </div>
+                </section>
+
+                <!-- 3. Insumos Adicionales -->
+                <section class="card" id="manual-items-section">
+                    <h2>3. Agregar Insumo Manualmente (Extra)</h2>
+                    <div class="manual-input-group">
+                        <select id="manual-product-select" class="input-modern"></select>
+                        <input type="number" id="manual-product-qty" class="input-modern" placeholder="Cantidad (ml/gr)" min="0" step="0.1">
+                        <button id="btn-add-manual" class="btn-primary">Añadir</button>
+                    </div>
+                    <div id="manual-cost-preview" class="manual-cost-preview"></div>
+                    <div class="manual-chips" id="manual-chips-container"></div>
+                </section>
+
+            </div>
+
+            <div class="right-column">
+                <!-- 4. Resumen (Cotizacion) -->
+                <section class="card highlight-panel" id="summary-section">
+                    <h2>Resumen de la Cotización</h2>
+                    <div class="summary-content">
+                        <div class="summary-group">
+                            <span>Materiales y Productos</span>
+                            <span id="sumMaterials">$0.00</span>
+                        </div>
+                        <div class="summary-group">
+                            <span>Mano de Obra (<span id="sumHours">0</span> hrs)</span>
+                            <span id="sumLabor">$0.00</span>
+                        </div>
+                        <div class="summary-group subtotal-row">
+                            <span>Subtotal Operativo</span>
+                            <span id="sumTotalCost">$0.00</span>
+                        </div>
+                        <div class="summary-group margin-row">
+                            <span>Margen (<span id="sumMarginPct">40</span>%)</span>
+                            <span id="sumMarginAmount">+$0.00</span>
+                        </div>
+                        
+                        <div class="divider"></div>
+                        
+                        <div class="summary-group total-row">
+                            <span>Precio Sugerido</span>
+                            <span id="sumFinalPrice" class="gradient-text">$0.00</span>
+                        </div>
+                    </div>
+                    
+                    <button id="btn-export-pdf" class="btn-primary" style="width: 100%; margin-top: 1.5rem; font-size: 1.1rem; justify-content: center; display: none; gap: 0.5rem; background: linear-gradient(135deg, #f43f5e, #e11d48);">
+                        📄 Exportar Cotización PDF
+                    </button>
+                    
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Configuracion -->
+    <div id="config-modal" class="modal hidden">
+        <div class="modal-content card">
+            <div class="modal-header">
+                <h2>⚙️ Configuración Interna</h2>
+                <button id="btn-close-config" class="btn-icon close-btn">❌</button>
+            </div>
+            <div class="modal-body">
+                <div class="config-section">
+                    <h3>Variables Financieras</h3>
+                    <div class="input-row">
+                        <label>Tarifa Laboral por Hora ($)</label>
+                        <input type="number" id="config-hourly" class="input-modern">
+                    </div>
+                    <div class="input-row">
+                        <label>Margen de Ganancia Opcional (%)</label>
+                        <input type="number" id="config-margin" class="input-modern">
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <h3>Catálogo de Insumos</h3>
+                    <p class="hint">Modifica el costo de adquisición o contenido del empaque para cálculos de rendimiento exactos.</p>
+                    <div class="table-responsive">
+                        <table id="products-config-table" class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Unidad</th>
+                                    <th>Costo ($)</th>
+                                    <th>Contenido</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="config-products-tbody">
+                                <!-- JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>➕ Agregar Producto al Catálogo</h3>
+                    <p class="hint">Añade una nueva marca o producto. Quedará disponible en todos los servicios y en insumos extra.</p>
+                    <div class="new-product-grid">
+                        <input type="text"   id="new-prod-name"    class="input-modern" placeholder="Nombre (ej: Meguiar's Gold Wax)">
+                        <select             id="new-prod-unit"    class="input-modern">
+                            <option value="ml">ml</option>
+                            <option value="gr">gr</option>
+                            <option value="pieza">pieza</option>
+                            <option value="oz">oz</option>
+                        </select>
+                        <input type="number" id="new-prod-cost"    class="input-modern" placeholder="Costo del envase ($)" min="0" step="0.01">
+                        <input type="number" id="new-prod-content" class="input-modern" placeholder="Contenido total" min="0" step="0.1">
+                        <button id="btn-new-prod-add" class="btn-small btn-accent" style="grid-column: 1 / -1;">＋ Agregar al Catálogo</button>
+                    </div>
+                    <p id="new-prod-feedback" class="new-prod-feedback"></p>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button id="btn-save-config" class="btn-primary">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Servicio (Editar / Crear) -->
+    <div id="service-modal" class="modal hidden">
+        <div class="modal-content card">
+            <div class="modal-header">
+                <h2 id="service-modal-title">✏️ Editar Servicio</h2>
+                <button id="btn-close-service-modal" class="btn-icon close-btn">❌</button>
+            </div>
+            <div class="modal-body">
+                <div class="config-section">
+                    <h3>Datos del Servicio</h3>
+                    <div class="input-row">
+                        <label>Nombre del Servicio</label>
+                        <input type="text" id="svc-name" class="input-modern" style="width: 250px;">
+                    </div>
+                    <div class="input-row">
+                        <label>Tiempo Base (minutos)</label>
+                        <input type="number" id="svc-time" class="input-modern" min="1">
+                    </div>
+                </div>
+                <div class="config-section">
+                    <h3>Productos Requeridos</h3>
+                    <p class="hint">Define qué productos se usan y cuántos ml/gr/pz se consumen en un vehículo base (Sedán Mediano).</p>
+                    <div id="svc-products-list" class="svc-products-list">
+                        <!-- JS -->
+                    </div>
+                    <div class="manual-input-group" style="margin-top: 1rem;">
+                        <select id="svc-add-product-select" class="input-modern"></select>
+                        <input type="number" id="svc-add-product-qty" class="input-modern" placeholder="Cant. base" min="0" step="0.1">
+                        <button id="btn-svc-add-product" class="btn-small btn-accent">＋</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                <button id="btn-delete-service" class="btn-danger" style="display: none;">🗑️ Eliminar</button>
+                <button id="btn-save-service" class="btn-primary">Guardar Servicio</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="data.js"></script>
+    <script src="calculator.js"></script>
+    <script src="app.js"></script>
+
+    <!-- PWA: Capture install prompt & Service Worker Registration -->
+    <script>
+        // --- Install Button Logic ---
+        let deferredInstallPrompt = null;
+        const btnInstall = document.getElementById('btn-install-pwa');
+
+        // Fired by the browser when the app meets PWA installability criteria
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); // Prevent the mini-infobar from auto-showing
+            deferredInstallPrompt = e;
+            btnInstall.style.display = 'inline-flex'; // Show our custom button
+        });
+
+        btnInstall.addEventListener('click', async () => {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt(); // Show the native install dialog
+            const { outcome } = await deferredInstallPrompt.userChoice;
+            if (outcome === 'accepted') {
+                btnInstall.style.display = 'none';
+            }
+            deferredInstallPrompt = null;
+        });
+
+        // Hide button after app is installed
+        window.addEventListener('appinstalled', () => {
+            btnInstall.style.display = 'none';
+            deferredInstallPrompt = null;
+        });
+
+        // --- Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => {
+                        console.log('[PWA] Service Worker registrado:', reg.scope);
+                        reg.onupdatefound = () => {
+                            const newWorker = reg.installing;
+                            newWorker.onstatechange = () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    const toast = document.createElement('div');
+                                    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#38bdf8;color:#0f172a;padding:12px 24px;border-radius:12px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.4);cursor:pointer;';
+                                    toast.textContent = '🔄 Nueva versión disponible — toca para actualizar';
+                                    toast.onclick = () => window.location.reload();
+                                    document.body.appendChild(toast);
+                                    setTimeout(() => toast.remove(), 8000);
+                                }
+                            };
+                        };
+                    })
+                    .catch(err => console.warn('[PWA] Error al registrar SW:', err));
+            });
+        }
+    </script>
+</body>
+</html>

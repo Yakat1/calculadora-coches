@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" ry="80" fill="#0f172a"/>
+  
+  <!-- Glow effect -->
+  <radialGradient id="glow" cx="50%" cy="55%" r="45%">
+    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.3"/>
+    <stop offset="100%" stop-color="#0f172a" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="512" height="512" rx="80" ry="80" fill="url(#glow)"/>
+
+  <!-- Car body -->
+  <g transform="translate(60, 180)">
+    <!-- Main body -->
+    <path d="M30 120 L50 70 Q80 30 130 25 L270 25 Q320 30 350 70 L370 120 L380 150 L380 200 Q380 220 360 220 L320 220 L320 200 Q320 170 290 170 L110 170 Q80 170 80 200 L80 220 L20 220 Q0 220 0 200 L0 150 Z" 
+          fill="#1e3a5f" stroke="#38bdf8" stroke-width="6"/>
+    <!-- Roof -->
+    <path d="M100 25 Q120 -20 180 -30 L220 -30 Q280 -20 300 25 Z" 
+          fill="#38bdf8" opacity="0.9"/>
+    <!-- Window glare -->
+    <path d="M115 20 Q130 -10 170 -22 L175 -22 Q165 -5 150 15 Z" 
+          fill="white" opacity="0.4"/>
+  </g>
+
+  <!-- Wheels -->
+  <circle cx="172" cy="368" r="44" fill="#0f172a" stroke="#38bdf8" stroke-width="8"/>
+  <circle cx="172" cy="368" r="22" fill="#38bdf8" opacity="0.8"/>
+  <circle cx="340" cy="368" r="44" fill="#0f172a" stroke="#38bdf8" stroke-width="8"/>
+  <circle cx="340" cy="368" r="22" fill="#38bdf8" opacity="0.8"/>
+
+  <!-- Shine sparkles -->
+  <g fill="#38bdf8" opacity="0.9">
+    <polygon points="390,90 395,105 410,105 398,114 403,129 390,120 377,129 382,114 370,105 385,105" 
+             transform="scale(0.8) translate(100,-30)"/>
+    <polygon points="390,90 393,100 403,100 395,106 398,116 390,110 382,116 385,106 377,100 387,100" 
+             transform="scale(0.5) translate(700,80)"/>
+  </g>
+
+  <!-- "D" letter -->
+  <text x="256" y="160" 
+        font-family="Arial, sans-serif" 
+        font-weight="900" 
+        font-size="90" 
+        fill="#38bdf8"
+        text-anchor="middle"
+        opacity="0.15">DC</text>
+</svg>
