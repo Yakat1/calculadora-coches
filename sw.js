@@ -1,7 +1,7 @@
 // sw.js - DetailCalc Service Worker
 // Estrategia: Cache First, con fallback a red
 
-const CACHE_NAME = 'detailcalc-v1';
+const CACHE_NAME = 'detailcalc-v2';
 
 // Todos los archivos necesarios para funcionar sin internet
 const ASSETS_TO_CACHE = [
